@@ -71,6 +71,7 @@ CREATE TABLE `Group` (
     GroupID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     GroupName VARCHAR(50) NOT NULL UNIQUE KEY,
     CreatorID TINYINT UNSIGNED UNIQUE KEY,
+    FOREIGN KEY(CreatorID) 	REFERENCES `Account`(AccountId),
     CreateDate DATETIME NOT NULL DEFAULT NOW()
 );
 
@@ -90,11 +91,10 @@ VALUES
 -- Table 5: GroupAccount
 DROP TABLE IF EXISTS GroupAccount;
 CREATE TABLE GroupAccount (
-    GroupID TINYINT UNSIGNED,
+    GroupID TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (GroupID) REFERENCES `Group`(GroupID),
-    AccountID TINYINT UNSIGNED,
-    FOREIGN KEY (AccountID) REFERENCES `Account`(AccountID),
-    PRIMARY KEY (GroupID, AccountID),
+    AccountID TINYINT UNSIGNED NOT NULL,
+    PRIMARY KEY (GroupID,AccountID),
     JoinDate DATETIME NOT NULL DEFAULT NOW()
 );
 
@@ -127,7 +127,7 @@ VALUES
 DROP TABLE IF EXISTS CategoryQuestion; 
 CREATE TABLE CategoryQuestion (
     CategoryID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    CategoryName VARCHAR(10) NOT NULL
+    CategoryName VARCHAR(50) NOT NULL
 );
 
 INSERT INTO CategoryQuestion(CategoryName) 
