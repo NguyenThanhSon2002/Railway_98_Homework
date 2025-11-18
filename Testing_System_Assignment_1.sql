@@ -1,0 +1,111 @@
+DROP DATABASE IF EXISTS Testing_System_Assignment_1;
+
+CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_1;
+
+USE Testing_System_Assignment_1;
+
+-- Table 1:Department 
+DROP TABLE IF EXISTS Department;
+CREATE TABLE Department (
+    DepartmentID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    DepartmentName VARCHAR(50) NOT NULL UNIQUE KEY
+);
+
+-- Table 2: Position
+DROP TABLE IF EXISTS `Position`;
+CREATE TABLE `Position` (
+    PositionID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    PositionName ENUM('Dev', 'Test', 'Scrum Master', 'PM') NOT NULL
+);
+
+-- Table 3: Account 
+DROP TABLE IF EXISTS `Account`;
+CREATE TABLE `Account` (
+    AccountID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Email VARCHAR(50) NOT NULL UNIQUE KEY,
+    Username VARCHAR(50) NOT NULL UNIQUE KEY,
+    FullName VARCHAR(50) NOT NULL,
+    DepartmentID TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (DepartmentID) REFERENCES Department (DepartmentID),
+    PositionID TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (PositionID) REFERENCES `Position` (PositionID),
+    CreateDate DATETIME NOT NULL DEFAULT NOW()
+);
+
+-- Table 4: Group  
+DROP TABLE IF EXISTS `Group`;
+CREATE TABLE `Group` (
+    GroupID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    GroupName VARCHAR(50) NOT NULL UNIQUE KEY,
+    CreatorID TINYINT UNSIGNED UNIQUE KEY,
+    CreateDate DATETIME NOT NULL DEFAULT NOW()
+);
+
+-- Table 5: GroupAccount
+DROP TABLE IF EXISTS GroupAccount;
+CREATE TABLE GroupAccount (
+    GroupID TINYINT UNSIGNED PRIMARY KEY,
+    FOREIGN KEY (GroupID) REFERENCES `Group`(GroupID),
+    AccountID TINYINT UNSIGNED UNIQUE KEY,
+    JoinDate DATETIME NOT NULL DEFAULT NOW()
+);
+
+-- Table 6: TypeQuestion
+DROP TABLE IF EXISTS TypeQuestion;  
+CREATE TABLE TypeQuestion (
+    TypeID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    TypeName ENUM('Essay', 'Multiple-Choice') NOT NULL
+);
+
+-- Table 7: CategoryQuestion 
+DROP TABLE IF EXISTS CategoryQuestion; 
+CREATE TABLE CategoryQuestion (
+    CategoryID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    CategoryName VARCHAR(10) NOT NULL
+);
+
+-- Table 8: Question 
+DROP TABLE IF EXISTS Question; 
+CREATE TABLE Question (
+    QuestionID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Content VARCHAR(50) NOT NULL UNIQUE KEY,
+    CategoryID TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (CategoryID) REFERENCES CategoryQuestion (CategoryID),
+    TypeID TINYINT UNSIGNED NOT NULL UNIQUE KEY,
+    CreatorID TINYINT UNSIGNED NOT NULL UNIQUE KEY,
+    CreateDate DATETIME NOT NULL DEFAULT NOW()
+);
+
+-- Table 9: Answer
+DROP TABLE IF EXISTS Answer;   
+CREATE TABLE Answer (
+    AnswerID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Content VARCHAR(50) NOT NULL UNIQUE KEY,
+    FOREIGN KEY (Content) REFERENCES Question (Content),
+    QuestionID TINYINT UNSIGNED NOT NULL UNIQUE KEY,
+    FOREIGN KEY (QuestionID) REFERENCES Question (QuestionID),
+    isCorrect BIT NOT NULL 
+);
+
+-- Table 10: Exam
+DROP TABLE IF EXISTS Exam;
+CREATE TABLE Exam (
+    ExamID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `Code` TINYINT UNSIGNED NOT NULL UNIQUE KEY,
+    Title VARCHAR(50) NOT NULL UNIQUE KEY,
+    CategoryID TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (CategoryID) REFERENCES CategoryQuestion (CategoryID),
+    Duration TINYINT NOT NULL,
+    CreatorID TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (CreatorID) REFERENCES Question (CreatorID),
+    CreateDate DATETIME NOT NULL DEFAULT NOW()
+);
+
+-- Table 11: ExamQuestion
+DROP TABLE IF EXISTS ExamQuestion;
+CREATE TABLE ExamQuestion (
+    ExamID TINYINT UNSIGNED,
+    FOREIGN KEY (ExamID) REFERENCES Exam (ExamID),
+    QuestionID TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (QuestionID) REFERENCES Question (QuestionID)    
+);
