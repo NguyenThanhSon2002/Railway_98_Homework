@@ -202,7 +202,7 @@ CREATE TABLE Exam (
     Duration TINYINT NOT NULL,
     CreatorID TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (CreatorID) REFERENCES Question (CreatorID),
-    CreateDate DATETIME NOT NULL DEFAULT NOW()
+    CreateDate DATETIME NOT NULL
 );
 
 INSERT INTO Exam	(`Code`			, Title					, CategoryID	, Duration	, CreatorID		, CreateDate )
@@ -269,6 +269,31 @@ SELECT MAX(FullName) FROM `Account` WHERE DepartmentID = 3;
 SELECT * FROM `Group`;
 SELECT GroupName FROM `Group` WHERE CreateDate < '2019-12-20';
 
--- Lấy ID của question có 
+-- Lấy ID của question có >= 4 câu trả lời
+SELECT * FROM Question;
+SELECT * FROM Answer;
+-- SELECT COUNT(QuestionID) FROM Question; -- WHERE COUNT(QuestionID) >= 4;
+
+
+-- Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo ra trước ngày 20/12/2019
+SELECT * FROM Exam;
+SELECT ExamID FROM Exam WHERE Duration >= 60 AND CreateDate < '2019-12-20';
+
+-- Lấy ra 5 group được tạo gần nhất
+SELECT * FROM `Group`;
+SELECT GroupName FROM `Group` ORDER BY CreateDate DESC LIMIT 5;
+
+-- Đếm số nhân viên thuộc department có id = 2
+SELECT * FROM Department;
+SELECT COUNT(DepartmentID) FROM Department WHERE DepartmentID = 2;
+
+-- Lấy ra nhân viên có tên bắt đầu bằng chữ 'D' và kết thúc bằng chữ 'o'
+SELECT * FROM `Account`;
+SELECT FullName FROM `Account` WHERE FullName LIKE '%D_o';
+
+-- Xóa tất cả các exam được tạo trước ngày 20/12/2019
+SELECT * FROM Exam;
+DELETE FROM Exam WHERE CreateDate < '2019-12-20';
+
 
 
