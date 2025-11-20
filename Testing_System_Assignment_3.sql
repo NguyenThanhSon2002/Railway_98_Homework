@@ -238,3 +238,26 @@ VALUES 					(	1	,		5		),
 						(	8	,		10		), 
 						(	9	,		9		), 
 						(	10	,		8		); 
+                        
+                        
+-- Lấy ra thông tin tất cả các phòng ban
+SELECT * FROM Department;
+SELECT * FROM `Position`;
+SELECT * FROM `Account`;
+SELECT * FROM `Group`;
+SELECT * FROM GroupAccount;
+SELECT * FROM TypeQuestion;
+SELECT * FROM CategoryQuestion;
+SELECT * FROM Question;
+SELECT * FROM Answer;
+SELECT * FROM Exam;
+SELECT * FROM ExamQuestion;
+
+-- Lấy id của phòng ban sale
+SELECT DepartmentID FROM Department WHERE Departmentname = 'Sale';
+
+-- Lấy thông tin account có fullname dài nhất
+SELECT * FROM `Account`;
+
+
+
