@@ -254,10 +254,21 @@ SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
 
 -- Lấy id của phòng ban sale
+SELECT * FROM Department;
 SELECT DepartmentID FROM Department WHERE Departmentname = 'Sale';
 
 -- Lấy thông tin account có fullname dài nhất
 SELECT * FROM `Account`;
+SELECT MAX(FullName) FROM `Account`;
 
+-- Lấy thông tin account có fullname dài nhất và thuộc phòng ban có ID bằng 3
+SELECT * FROM `Account`;
+SELECT MAX(FullName) FROM `Account` WHERE DepartmentID = 3;
+
+-- Lấy ra tên group đã tham gia trước ngày 20/12/2019
+SELECT * FROM `Group`;
+SELECT GroupName FROM `Group` WHERE CreateDate < '2019-12-20';
+
+-- Lấy ID của question có 
 
 
