@@ -224,7 +224,7 @@ CREATE TABLE ExamQuestion (
     FOREIGN KEY (ExamID) REFERENCES Exam (ExamID),
     QuestionID TINYINT UNSIGNED NOT NULL,
     FOREIGN KEY (QuestionID) REFERENCES Question (QuestionID),  
-    PRIMARY KEY (ExamID,QuestionID)
+    PRIMARY KEY (ExamID, QuestionID)
 );
 
 INSERT INTO ExamQuestion(ExamID	, QuestionID	) 
@@ -240,7 +240,7 @@ VALUES 					(	1	,		5		),
 						(	10	,		8		); 
                         
                         
--- Lấy ra thông tin tất cả các phòng ban
+-- Câu 2: Lấy ra thông tin tất cả các phòng ban
 SELECT * FROM Department;
 SELECT * FROM `Position`;
 SELECT * FROM `Account`;
@@ -253,47 +253,58 @@ SELECT * FROM Answer;
 SELECT * FROM Exam;
 SELECT * FROM ExamQuestion;
 
--- Lấy id của phòng ban sale
+-- Câu 3: Lấy id của phòng ban sale
 SELECT * FROM Department;
 SELECT DepartmentID FROM Department WHERE Departmentname = 'Sale';
 
--- Lấy thông tin account có fullname dài nhất
-SELECT * FROM `Account`;
-SELECT MAX(FullName) FROM `Account`;
+-- Câu 4: Lấy thông tin account có fullname dài nhất
+WITH cte_MaxLengthFullName AS (
+	SELECT max(length(Fullname)) AS MAX_FullName FROM `Account`
+)
+SELECT * FROM `Account` WHERE length(Fullname) = (SELECT MAX_FullName FROM cte_MaxLengthFullName);
 
--- Lấy thông tin account có fullname dài nhất và thuộc phòng ban có ID bằng 3
-SELECT * FROM `Account`;
-SELECT MAX(FullName) FROM `Account` WHERE DepartmentID = 3;
+-- Câu 5: Lấy thông tin account có fullname dài nhất và thuộc phòng ban có ID bằng 3
+WITH cte_MaxLengthFullName AS (
+	SELECT max(length(Fullname)) AS MAX_FullName FROM `Account`
+)
+SELECT * FROM `Account` WHERE length(Fullname) = (SELECT MAX_FullName FROM cte_MaxLengthFullName) AND DepartmentID = 3;
 
--- Lấy ra tên group đã tham gia trước ngày 20/12/2019
+-- Câu 6: Lấy ra tên group đã tham gia trước ngày 20/12/2019
 SELECT * FROM `Group`;
-SELECT GroupName FROM `Group` WHERE CreateDate < '2019-12-20';
+SELECT GroupName, CreateDate FROM `Group` WHERE CreateDate < '2019-12-20';
 
--- Lấy ID của question có >= 4 câu trả lời
-SELECT * FROM Question;
+-- Câu 7: Lấy ID của question có >= 4 câu trả lời
 SELECT * FROM Answer;
--- SELECT COUNT(QuestionID) FROM Question; -- WHERE COUNT(QuestionID) >= 4;
+SELECT QuestionID, COUNT(QuestionID) AS CountQuestionAnswer FROM Answer 
+GROUP BY QuestionID
+HAVING COUNT(QuestionID) >= 4;
 
-
--- Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo ra trước ngày 20/12/2019
+-- Câu 8: Lấy ra các mã đề thi có thời gian thi >= 60 phút và được tạo ra trước ngày 20/12/2019
 SELECT * FROM Exam;
-SELECT ExamID FROM Exam WHERE Duration >= 60 AND CreateDate < '2019-12-20';
+SELECT ExamID, CreateDate FROM Exam WHERE Duration >= 60 AND CreateDate < '2019-12-20';
 
--- Lấy ra 5 group được tạo gần nhất
+-- Câu 9: Lấy ra 5 group được tạo gần nhất
 SELECT * FROM `Group`;
-SELECT GroupName FROM `Group` ORDER BY CreateDate DESC LIMIT 5;
+SELECT GroupName, CreateDate FROM `Group` ORDER BY CreateDate DESC LIMIT 5;
 
--- Đếm số nhân viên thuộc department có id = 2
-SELECT * FROM Department;
-SELECT COUNT(DepartmentID) FROM Department WHERE DepartmentID = 2;
+-- Câu 10: Đếm số nhân viên thuộc department có id = 2
+SELECT * FROM `Account`;
+SELECT DepartmentID, COUNT(AccountID) FROM `Account` WHERE DepartmentID = 2;
 
--- Lấy ra nhân viên có tên bắt đầu bằng chữ 'D' và kết thúc bằng chữ 'o'
+-- Câu 11: Lấy ra nhân viên có tên bắt đầu bằng chữ 'D' và kết thúc bằng chữ 'o'
 SELECT * FROM `Account`;
 SELECT FullName FROM `Account` WHERE FullName LIKE '%D_o';
 
--- Xóa tất cả các exam được tạo trước ngày 20/12/2019
+-- Câu 12: Xóa tất cả các exam được tạo trước ngày 20/12/2019
 SELECT * FROM Exam;
 DELETE FROM Exam WHERE CreateDate < '2019-12-20';
+
+-- Câu 13: Xóa tất cả các Question có nội dung bắt đầu bằng chữ "câu hỏi"
+SELECT * FROM Question;
+DELETE FROM Question WHERE Content LIKE '%Câu_hỏi_';
+SELECT * FROM Question;
+
+
 
 
 
