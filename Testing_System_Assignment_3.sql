@@ -293,7 +293,7 @@ SELECT DepartmentID, COUNT(AccountID) FROM `Account` WHERE DepartmentID = 2;
 
 -- Câu 11: Lấy ra nhân viên có tên bắt đầu bằng chữ 'D' và kết thúc bằng chữ 'o'
 SELECT * FROM `Account`;
-SELECT FullName FROM `Account` WHERE FullName LIKE '%D_o';
+SELECT FullName FROM `Account` WHERE FullName LIKE 'D%_o';
 
 -- Câu 12: Xóa tất cả các exam được tạo trước ngày 20/12/2019
 SELECT * FROM Exam;
