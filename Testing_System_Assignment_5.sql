@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS Testing_System_Assignment_4;
+DROP DATABASE IF EXISTS Testing_System_Assignment_5;
 
-CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_4;
+CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_5;
 
-USE Testing_System_Assignment_4;
+USE Testing_System_Assignment_5;
 
 -- Table 1:Department 
 DROP TABLE IF EXISTS Department;
@@ -100,16 +100,16 @@ CREATE TABLE GroupAccount (
 
 INSERT INTO GroupAccount(GroupID, AccountID) 
 VALUES				  
-						(1, 110),
-                        (2, 111),
-                        (3, 112),
-                        (4, 113),
-                        (5, 114),
-                        (6, 115),
-                        (7, 116),
-                        (8, 117),
-                        (9, 118),
-                        (10, 119);
+						(1, 1),
+                        (2, 1),
+                        (3, 2),
+                        (4, 3),
+                        (5, 4),
+                        (6, 5),
+                        (7, 6),
+                        (8, 7),
+                        (9, 8),
+                        (10, 9);
 
 -- Table 6: TypeQuestion
 DROP TABLE IF EXISTS TypeQuestion;  
@@ -239,76 +239,28 @@ VALUES 					(	1	,		5		),
 						(	9	,		9		), 
 						(	10	,		8		); 
                         
--- Câu 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
-SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT * FROM `Account` a
-INNER JOIN Department d On a.DepartmentID = d.DepartmentID;
-
--- Câu 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT * FROM `Account` a
-INNER JOIN Department d On a.DepartmentID = d.DepartmentID
-WHERE CreateDate > '2020-12-20';
-
--- Câu 4: Viết lệnh để lấy ra danh sách các phòng ban có > 3 nhân viên
--- B1: xác định các bảng dữ liệu liên quan: Account, Department
--- B2: xác định bảng dữ liệu gốc
+-- Câu 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất
 
 SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT a.DepartmentID, d.DepartmentName, COUNT(AccountID) AS `MEMBER` FROM `Account` a
-INNER JOIN Department d On a.DepartmentID = d.DepartmentID
-GROUP BY DepartmentID
-HAVING COUNT(AccountID) >= 3;
-                      
--- Câu 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
-SELECT * FROM Question;
-SELECT * FROM ExamQuestion;
-
-WITH cte_Amount_Question AS (
-	SELECT COUNT(*) AS Amount FROM ExamQuestion GROUP BY QuestionID 
+SELECT * FROM GroupAccount;
+CREATE OR REPLACE VIEW vw_GroupAccount AS
+WITH cte_MAX_GROUP_JOIN AS (
+	SELECT COUNT(*) AS GROUP_JOIN FROM GroupAccount ga GROUP BY ga.AccountID
 )
-SELECT ex.QuestionID, q.Content, COUNT(*) FROM ExamQuestion ex
-INNER JOIN Question q ON q.QuestionID = ex.QuestionID
-GROUP BY QuestionID
-HAVING COUNT(*) = (SELECT MAX(Amount) FROM cte_Amount_Question);
+SELECT ga.AccountID, a.FullName, COUNT(*) AS GROUP_JOIN FROM GroupAccount ga
+INNER JOIN `Account` a ON a.AccountID = ga.AccountID
+GROUP BY ga.AccountID
+HAVING COUNT(*) = (SELECT MAX(GROUP_JOIN) FROM cte_MAX_GROUP_JOIN);
 
--- Câu 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
+SELECT * FROM vw_GroupAccount;
+DROP VIEW vw_GroupAccount;
+
+-- Câu 3: Tạo view có chứa câu hỏi có những content quá dài (content quá 300 từ được coi là quá dài) và xóa nó đi
 SELECT * FROM Question;
-SELECT * FROM CategoryQuestion;
-
-SELECT c.CategoryName, COUNT(q.CategoryID) FROM CategoryQuestion c
-INNER JOIN Question q ON c.CategoryID = q.CategoryID
-GROUP BY q.CategoryID;
-
--- Câu 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
-SELECT * FROM Question;
-SELECT * FROM ExamQuestion;
-
-SELECT ex.QuestionID, COUNT(ex.ExamID) AS NumberOfExam FROM Question q
-LEFT JOIN ExamQuestion ex ON q.QuestionID = ex.QuestionID
-GROUP BY ex.QuestionID;
-
--- SELECT q.QuestionID, q.Content , count(eq.ExamID) FROM ExamQuestion eq
--- RIGHT JOIN Question q ON q.QuestionID = eq.QuestionID
--- GROUP BY q.QuestionID;
-
--- Câu 8: Lấy ra Question có nhiều câu trả lời nhất
-SELECT * FROM Question;
-SELECT * FROM Answer;
-
-WITH cte_Max_Answer_Question AS (
-	SELECT COUNT(*) AS Max_Answer_Question FROM Answer GROUP BY QuestionID
-)
-SELECT q.QuestionID, q.Content, COUNT(*) AS Answer_Question FROM Question q
-INNER JOIN Answer a ON q.QuestionID = a.QuestionID
-GROUP BY QuestionID
-HAVING COUNT(*) = (SELECT MAX(Max_Answer_Question) FROM cte_Max_Answer_Question);
+CREATE OR REPLACE VIEW vw_LengthContent AS
+SELECT Content, LENGTH(Content) AS LengthContent FROM Question WHERE LENGTH(Content) > 10; 
+SELECT * FROM vw_LengthContent;
+DROP VIEW vw_LengthContent;
 
 
 
@@ -320,21 +272,5 @@ HAVING COUNT(*) = (SELECT MAX(Max_Answer_Question) FROM cte_Max_Answer_Question)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                     
+                        
+                        
