@@ -239,10 +239,22 @@ VALUES 					(	1	,		5		),
 						(	9	,		9		), 
 						(	10	,		8		); 
                         
+-- Câu 1: Tạo view có chứa danh sách nhân viên thuộc phòng ban sale
+SELECT * FROM `Account`;
+SELECT * FROM Department;  
+
+CREATE OR REPLACE VIEW vw_Member_Department AS
+SELECT a.*, d.DepartmentName FROM `Account` a
+INNER JOIN Department d ON a.DepartmentID = d.DepartmentID
+WHERE d.DepartmentID = 2;                     
+SELECT * FROM vw_Member_Department;
+DROP VIEW vw_Member_Department; 
+                      
 -- Câu 2: Tạo view có chứa thông tin các account tham gia vào nhiều group nhất
 
 SELECT * FROM `Account`;
 SELECT * FROM GroupAccount;
+
 CREATE OR REPLACE VIEW vw_GroupAccount AS
 WITH cte_MAX_GROUP_JOIN AS (
 	SELECT COUNT(*) AS GROUP_JOIN FROM GroupAccount ga GROUP BY ga.AccountID
@@ -261,6 +273,34 @@ CREATE OR REPLACE VIEW vw_LengthContent AS
 SELECT Content, LENGTH(Content) AS LengthContent FROM Question WHERE LENGTH(Content) > 10; 
 SELECT * FROM vw_LengthContent;
 DROP VIEW vw_LengthContent;
+
+-- Câu 4: Tạo view có chứa danh sách các phòng ban có nhiều nhân viên nhất
+SELECT * FROM Department;  
+SELECT * FROM `Account`;
+CREATE OR REPLACE VIEW vw_MaxNV AS
+WITH CTE_Count_NV AS(
+SELECT count(A1.DepartmentID) AS countDEP_ID FROM account A1
+GROUP BY A1.DepartmentID)
+
+SELECT D.DepartmentName, count(A.DepartmentID) AS SL 
+FROM account A
+INNER JOIN `department` D ON D.DepartmentID = A.DepartmentID
+GROUP BY A.DepartmentID
+HAVING count(A.DepartmentID) = (SELECT max(countDEP_ID) FROM CTE_Count_NV);
+
+SELECT * FROM vw_MaxNV;
+
+-- CREATE OR REPLACE VIEW vw_MAX_Member_Department AS
+WITH cte_MAX_Member_Department AS (
+	SELECT COUNT(a.DepartmentID) AS Member_Department FROM `Account` a GROUP BY a.DepartmentID
+)
+SELECT d.DepartmentName, a.*, COUNT(*) FROM Department d
+INNER JOIN `Account` a ON a.DepartmentID = d.DepartmentID
+GROUP BY DepartmentID
+HAVING COUNT(*) = (SELECT MAX(Member_Department) FROM cte_MAX_Member_Department);                     
+SELECT * FROM vw_MAX_Member_Department;
+DROP VIEW vw_MAX_Member_Department; 
+
 
 
 

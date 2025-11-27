@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS Testing_System_Assignment_4;
+DROP DATABASE IF EXISTS Testing_System_Assignment_6;
 
-CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_4;
+CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_6;
 
-USE Testing_System_Assignment_4;
+USE Testing_System_Assignment_6;
 
 -- Table 1:Department 
 DROP TABLE IF EXISTS Department;
@@ -42,14 +42,14 @@ VALUES
 DROP TABLE IF EXISTS `Account`;
 CREATE TABLE `Account` (
     AccountID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    Email VARCHAR(50) NOT NULL UNIQUE KEY,
-    Username VARCHAR(50) NOT NULL UNIQUE KEY,
-    FullName VARCHAR(50) NOT NULL,
-    DepartmentID TINYINT UNSIGNED NOT NULL,
+    Email VARCHAR(50) UNIQUE KEY,
+    Username VARCHAR(50) UNIQUE KEY,
+    FullName VARCHAR(50),
+    DepartmentID TINYINT UNSIGNED,
     FOREIGN KEY (DepartmentID) REFERENCES Department (DepartmentID),
-    PositionID TINYINT UNSIGNED NOT NULL,
+    PositionID TINYINT UNSIGNED,
     FOREIGN KEY (PositionID) REFERENCES `Position` (PositionID),
-    CreateDate DATETIME NOT NULL DEFAULT NOW()
+    CreateDate DATETIME DEFAULT NOW()
 );
 
 INSERT INTO `Account` (Email,Username,FullName,DepartmentID,PositionID) 
@@ -101,15 +101,15 @@ CREATE TABLE GroupAccount (
 INSERT INTO GroupAccount(GroupID, AccountID) 
 VALUES				  
 						(1, 1),
-                        (1, 2),
-                        (1, 3),
-                        (4, 4),
-                        (5, 5),
-                        (6, 6),
-                        (7, 7),
-                        (8, 8),
-                        (9, 9),
-                        (10, 10);
+                        (2, 1),
+                        (3, 2),
+                        (4, 3),
+                        (5, 4),
+                        (6, 5),
+                        (7, 6),
+                        (8, 7),
+                        (9, 8),
+                        (10, 9);
 
 -- Table 6: TypeQuestion
 DROP TABLE IF EXISTS TypeQuestion;  
@@ -238,129 +238,16 @@ VALUES 					(	1	,		5		),
 						(	8	,		10		), 
 						(	9	,		9		), 
 						(	10	,		8		); 
-                        
--- Câu 1: Viết lệnh để lấy ra danh sách nhân viên và thông tin phòng ban của họ
+
+-- Câu 1: Tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các
+-- account thuộc phòng ban đó
 SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT * FROM `Account` a
-INNER JOIN Department d On a.DepartmentID = d.DepartmentID;
-
--- Câu 2: Viết lệnh để lấy ra thông tin các account được tạo sau ngày 20/12/2010
-SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT * FROM `Account` a
-INNER JOIN Department d On a.DepartmentID = d.DepartmentID
-WHERE CreateDate > '2020-12-20';
-
--- Câu 4: Viết lệnh để lấy ra danh sách các phòng ban có > 3 nhân viên
--- B1: xác định các bảng dữ liệu liên quan: Account, Department
--- B2: xác định bảng dữ liệu gốc
-
-SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT a.DepartmentID, d.DepartmentName, COUNT(AccountID) AS `MEMBER` FROM `Account` a
-INNER JOIN Department d On a.DepartmentID = d.DepartmentID
-GROUP BY DepartmentID
-HAVING COUNT(AccountID) >= 3;
-                      
--- Câu 5: Viết lệnh để lấy ra danh sách câu hỏi được sử dụng trong đề thi nhiều nhất 
-SELECT * FROM Question;
-SELECT * FROM ExamQuestion;
-
-WITH cte_Amount_Question AS (
-	SELECT COUNT(*) AS Amount FROM ExamQuestion GROUP BY QuestionID 
-)
-SELECT ex.QuestionID, q.Content, COUNT(*) FROM ExamQuestion ex
-INNER JOIN Question q ON q.QuestionID = ex.QuestionID
-GROUP BY QuestionID
-HAVING COUNT(*) = (SELECT MAX(Amount) FROM cte_Amount_Question);
-
--- Câu 6: Thông kê mỗi category Question được sử dụng trong bao nhiêu Question
-SELECT * FROM Question;
-SELECT * FROM CategoryQuestion;
-
-SELECT c.CategoryName, COUNT(q.CategoryID) FROM CategoryQuestion c
-INNER JOIN Question q ON c.CategoryID = q.CategoryID
-GROUP BY q.CategoryID;
-
--- Câu 7: Thông kê mỗi Question được sử dụng trong bao nhiêu Exam
-SELECT * FROM Question;
-SELECT * FROM ExamQuestion;
-
-SELECT ex.QuestionID, COUNT(ex.ExamID) AS NumberOfExam FROM Question q
-LEFT JOIN ExamQuestion ex ON q.QuestionID = ex.QuestionID
-GROUP BY ex.QuestionID;
-
--- SELECT q.QuestionID, q.Content , count(eq.ExamID) FROM ExamQuestion eq
--- RIGHT JOIN Question q ON q.QuestionID = eq.QuestionID
--- GROUP BY q.QuestionID;
-
--- Câu 8: Lấy ra Question có nhiều câu trả lời nhất
-SELECT * FROM Question;
-SELECT * FROM Answer;
-
-WITH cte_Max_Answer_Question AS (
-	SELECT COUNT(*) AS Max_Answer_Question FROM Answer GROUP BY QuestionID
-)
-SELECT q.QuestionID, q.Content, COUNT(*) AS Answer_Question FROM Question q
-INNER JOIN Answer a ON q.QuestionID = a.QuestionID
-GROUP BY QuestionID
-HAVING COUNT(*) = (SELECT MAX(Max_Answer_Question) FROM cte_Max_Answer_Question);
-
--- Câu 9: Thống kê số lượng account trong mỗi group
-SELECT * FROM `Account`;
-SELECT * FROM GroupAccount;
-
-SELECT ga.GroupID, COUNT(*) AS `NumberAccount` FROM GroupAccount ga
-INNER JOIN `Account` a ON ga.AccountID = a.AccountID
-GROUP BY GroupID;
-
--- Câu 10: Tìm chức vụ có ít người nhất
-SELECT * FROM `Account`;
-SELECT * FROM `Position`;
-
-WITH cte_Min_Account AS (
-	SELECT COUNT(AccountID) AS Min_Account FROM `Account` GROUP BY PositionID
-)
-SELECT a.PositionID, p.PositionName, COUNT(a.PositionID) AS NumberAccount FROM `Account` a
-INNER JOIN `Position` p ON a.PositionID = p.PositionID
-GROUP BY a.PositionID
-HAVING COUNT(*) = (SELECT MIN(Min_Account) FROM cte_Min_Account);
-
--- Câu 11: Thống kê mỗi phòng ban có bao nhiêu dev, test, scrum master, PM
-SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-SELECT * FROM Department d
-INNER JOIN `Account` a ON d.DepartmentID = a.DepartmentID
-GROUP BY a.PositionID;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                     
+DROP PROCEDURE IF EXISTS sp_InsertAccount;
+DELIMITER $$
+CREATE PROCEDURE sp_InsertAccount(IN in_DepartmentID TINYINT) 
+	BEGIN
+		INSERT INTO `Account` (DepartmentID)
+        VALUES				  (in_DepartmentID);
+	END$$
+DELIMITER ;
+CALL sp_InsertAccount (20);
