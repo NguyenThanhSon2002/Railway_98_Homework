@@ -242,12 +242,44 @@ VALUES 					(	1	,		5		),
 -- Câu 1: Tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các
 -- account thuộc phòng ban đó
 SELECT * FROM `Account`;
+SELECT * FROM Department;
+
 DROP PROCEDURE IF EXISTS sp_InsertAccount;
 DELIMITER $$
 CREATE PROCEDURE sp_InsertAccount(IN in_DepartmentID TINYINT) 
 	BEGIN
-		INSERT INTO `Account` (DepartmentID)
-        VALUES				  (in_DepartmentID);
+		SELECT a.*, d.DepartmentName FROM `Account` a
+        INNER JOIN Department d ON a.DepartmentID = d.DepartmentID
+        WHERE d.DepartmentID = in_DepartmentID;
 	END$$
 DELIMITER ;
-CALL sp_InsertAccount (20);
+CALL sp_InsertAccount (5);
+
+-- Câu 4: Tạo store để trả ra id của type question có nhiều câu hỏi nhất
+SELECT * FROM TypeQuestion;
+SELECT * FROM Question;
+
+
+DROP PROCEDURE IF EXISTS sp_Max_Type_Question;
+DELIMITER $$
+CREATE PROCEDURE sp_Max_Type_Question() 
+	BEGIN
+		WITH cte_Max_Type_Question AS (
+			SELECT COUNT(*) AS Max_Type_Question FROM Question GROUP BY TypeID
+		)
+		SELECT q.TypeID, tq.TypeName, COUNT(*) AS Number_Question FROM Question q
+		INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
+		GROUP BY TypeID
+		HAVING COUNT(*) = (SELECT MAX(Max_Type_Question) FROM cte_Max_Type_Question);
+	END$$
+DELIMITER ;
+
+CALL sp_Max_Type_Question;
+
+-- Mở rộng; Tìm ra TypeQuestion đưa vào 1 ngày nào đó, sau khi có KQ => đầu ra: ID của TypeQuestion và số lượng câu hỏi (out)
+ 
+
+
+
+
+
