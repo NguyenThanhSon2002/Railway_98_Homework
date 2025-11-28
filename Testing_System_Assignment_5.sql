@@ -275,35 +275,33 @@ SELECT * FROM vw_LengthContent;
 DROP VIEW vw_LengthContent;
 
 -- Câu 4: Tạo view có chứa danh sách các phòng ban có nhiều nhân viên nhất
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
 SELECT * FROM Department;  
 SELECT * FROM `Account`;
-CREATE OR REPLACE VIEW vw_MaxNV AS
-WITH CTE_Count_NV AS(
-SELECT count(A1.DepartmentID) AS countDEP_ID FROM account A1
-GROUP BY A1.DepartmentID)
 
-SELECT D.DepartmentName, count(A.DepartmentID) AS SL 
-FROM account A
-INNER JOIN `department` D ON D.DepartmentID = A.DepartmentID
-GROUP BY A.DepartmentID
-HAVING count(A.DepartmentID) = (SELECT max(countDEP_ID) FROM CTE_Count_NV);
-
-SELECT * FROM vw_MaxNV;
-
--- CREATE OR REPLACE VIEW vw_MAX_Member_Department AS
-WITH cte_MAX_Member_Department AS (
-	SELECT COUNT(a.DepartmentID) AS Member_Department FROM `Account` a GROUP BY a.DepartmentID
+CREATE OR REPLACE VIEW vw_MAX_Member_Department AS
+WITH cte_Member_Department AS (
+	SELECT COUNT(*) AS Member_Department FROM `Account` a1 GROUP BY a1.DepartmentID
 )
 SELECT d.DepartmentName, a.*, COUNT(*) FROM Department d
-INNER JOIN `Account` a ON a.DepartmentID = d.DepartmentID
-GROUP BY DepartmentID
-HAVING COUNT(*) = (SELECT MAX(Member_Department) FROM cte_MAX_Member_Department);                     
+INNER JOIN `Account` a ON d.DepartmentID = a.DepartmentID
+GROUP BY a.DepartmentID
+HAVING COUNT(*) = (SELECT MAX(Member_Department) FROM cte_Member_Department);     
+                
 SELECT * FROM vw_MAX_Member_Department;
-DROP VIEW vw_MAX_Member_Department; 
+DROP VIEW vw_MAX_Member_Department;
 
+-- Câu 5: Tạo view có chứa tất các các câu hỏi do user họ Nguyễn tạo
+SELECT * FROM `Account`;
+SELECT * FROM Question;
 
-
-
+CREATE OR REPLACE VIEW vw_CreatorQuestion AS
+SELECT q.QuestionID, q.Content, a.Username, a.FullName AS CreatorQuestion FROM Question q
+INNER JOIN `Account` a ON q.CreatorID = a.AccountID
+WHERE a.Username LIKE 'Nguyen%';
+SELECT * FROM vw_CreatorQuestion;
+DROP VIEW vw_CreatorQuestion;
 
 
 
