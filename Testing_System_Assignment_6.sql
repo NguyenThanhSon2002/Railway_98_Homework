@@ -277,7 +277,21 @@ DELIMITER ;
 CALL sp_Max_Type_Question;
 
 -- Mở rộng; Tìm ra TypeQuestion đưa vào 1 ngày nào đó, sau khi có KQ => đầu ra: ID của TypeQuestion và số lượng câu hỏi (out)
- 
+ DROP PROCEDURE IF EXISTS sp_Date_Create_Question;
+DELIMITER $$
+CREATE PROCEDURE sp_Date_Create_Question() 
+	BEGIN
+		WITH cte_Date_Create_Question AS (
+			SELECT COUNT(*) AS Max_Type_Question FROM Question GROUP BY TypeID
+		)
+		SELECT q.TypeID, tq.TypeName, COUNT(*) AS Number_Question FROM Question q
+		INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
+		GROUP BY TypeID
+		HAVING COUNT(*) = (SELECT MAX(Max_Type_Question) FROM cte_Max_Type_Question);
+	END$$
+DELIMITER ;
+
+CALL sp_Max_Type_Question;
 
 
 

@@ -332,11 +332,82 @@ HAVING COUNT(*) = (SELECT MIN(Min_Account) FROM cte_Min_Account);
 
 -- Câu 11: Thống kê mỗi phòng ban có bao nhiêu dev, test, scrum master, PM
 SELECT * FROM `Account`;
+SELECT * FROM `Position`;
 SELECT * FROM Department;
 
-SELECT * FROM Department d
-INNER JOIN `Account` a ON d.DepartmentID = a.DepartmentID
-GROUP BY a.PositionID;
+SELECT a.DepartmentID, d.DepartmentName, p.PositionName, COUNT(*) AS NumberPositionOfDepartment FROM `Account` a
+INNER JOIN `Position` p ON a.PositionID = p.PositionID
+INNER JOIN Department d ON a.DepartmentID = d.DepartmentID
+GROUP BY d.DepartmentID, p.PositionName;
+
+-- Câu 12: Lấy thông tin chi tiết của câu hỏi bao gồm: thông tin cơ bản của
+-- question, loại câu hỏi, ai là người tạo ra câu hỏi, câu trả lời là gì, ...
+SELECT * FROM Question;
+SELECT * FROM TypeQuestion;
+SELECT * FROM `Account`;
+SELECT * FROM Answer;
+
+SELECT q.QuestionID, q.Content, tq.TypeName, a.FullName AS Creator, an.AnswerID, an.Content  FROM Question q
+INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
+INNER JOIN `Account` a ON q.CreatorID = a.AccountID
+INNER JOIN Answer an ON q.QuestionID = an.AnswerID;
+
+-- Câu 13: Lấy ra số lượng câu hỏi của mỗi loại tự luận hay trắc nghiệm
+SELECT * FROM Question;
+SELECT * FROM TypeQuestion;
+
+SELECT tq.TypeID, tq.TypeName, COUNT(*) AS NumberOfTypeQuestion FROM Question q
+INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
+GROUP BY TypeID;
+
+-- Câu 14: Lấy ra group không có account nào
+SELECT * FROM `Group`;
+SELECT * FROM GroupAccount;
+
+SELECT g.GroupID, g.GroupName, ga.AccountID  FROM `Group`g 
+LEFT JOIN GroupAccount ga ON g.GroupID = ga.GroupID
+WHERE ga.AccountID IS NULL;
+
+-- Câu 16: Lấy ra question không có answer nào
+SELECT * FROM Question;
+SELECT * FROM Answer;
+
+SELECT q.QuestionID, q.Content, a.AnswerID FROM Question q
+LEFT JOIN Answer a ON q.QuestionID = a.QuestionID
+WHERE a.AnswerID IS NULL;
+
+-- Câu 17:
+-- a) Lấy các account thuộc nhóm thứ 1
+-- b) Lấy các account thuộc nhóm thứ 2
+-- c) Ghép 2 kết quả từ câu a) và câu b) sao cho không có record nào trùng nhau 
+SELECT * FROM `Account`;
+SELECT * FROM GroupAccount;
+
+SELECT a.FullName, ga.GroupID FROM `Account` a
+INNER JOIN GroupAccount ga ON a.AccountID= ga.AccountID
+WHERE ga.GroupID = 1
+UNION
+SELECT a.FullName, ga.GroupID FROM `Account` a
+INNER JOIN GroupAccount ga ON a.AccountID= ga.AccountID
+WHERE ga.GroupID = 2;
+
+-- Câu 18:
+-- a) Lấy các group có lớn hơn 5 thành viên
+-- b) Lấy các group có nhỏ hơn 7 thành viên
+-- c) Ghép 2 kết quả từ câu a) và câu b)
+SELECT * FROM `Account`;
+SELECT * FROM GroupAccount;
+
+SELECT ga.GroupID, COUNT(*) FROM `Account` a
+INNER JOIN GroupAccount ga ON a.AccountID= ga.AccountID
+GROUP BY ga.GroupID
+HAVING COUNT(*) > 2
+UNION
+SELECT ga.GroupID, COUNT(*) FROM `Account` a
+INNER JOIN GroupAccount ga ON a.AccountID= ga.AccountID
+GROUP BY ga.GroupID
+HAVING COUNT(*) > 7;
+
 
 
 
