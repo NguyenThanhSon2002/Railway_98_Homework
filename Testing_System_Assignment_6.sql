@@ -255,6 +255,25 @@ CREATE PROCEDURE sp_InsertAccount(IN in_DepartmentID TINYINT)
 DELIMITER ;
 CALL sp_InsertAccount (5);
 
+-- Câu 2: Tạo store để in ra số lượng account trong mỗi group
+SELECT * FROM `Account`;
+SELECT * FROM GroupAccount;
+
+DROP PROCEDURE IF EXISTS sp_MemberOfGroup;
+DELIMITER $$
+CREATE PROCEDURE sp_MemberOfGroup() 
+	BEGIN
+		SELECT ga.GroupID, COUNT(*) AS MemberOfGroup FROM GroupAccount ga
+        INNER JOIN `Account` a ON ga.AccountID = a.AccountID
+        GROUP BY ga.GroupID;
+       	END$$
+DELIMITER ;
+
+CALL sp_MemberOfGroup;
+
+-- Câu 3: Tạo store để thống kê mỗi type question có bao nhiêu question được tạo trong tháng hiện tại
+
+
 -- Câu 4: Tạo store để trả ra id của type question có nhiều câu hỏi nhất
 SELECT * FROM TypeQuestion;
 SELECT * FROM Question;
@@ -276,22 +295,21 @@ DELIMITER ;
 
 CALL sp_Max_Type_Question;
 
--- Mở rộng; Tìm ra TypeQuestion đưa vào 1 ngày nào đó, sau khi có KQ => đầu ra: ID của TypeQuestion và số lượng câu hỏi (out)
- DROP PROCEDURE IF EXISTS sp_Date_Create_Question;
+-- Mở rộng: Tìm ra TypeQuestion đưa vào 1 ngày nào đó, sau khi có KQ => đầu ra: ID của TypeQuestion và số lượng câu hỏi (out)
+SELECT * FROM TypeQuestion;
+SELECT * FROM Question;
+
+DROP PROCEDURE IF EXISTS sp_Date_Create_Question;
 DELIMITER $$
-CREATE PROCEDURE sp_Date_Create_Question() 
+CREATE PROCEDURE sp_Date_Create_Question(IN in_Date_Create_Question DATETIME, OUT out_NumberOfQuestion INT) 
 	BEGIN
-		WITH cte_Date_Create_Question AS (
-			SELECT COUNT(*) AS Max_Type_Question FROM Question GROUP BY TypeID
-		)
-		SELECT q.TypeID, tq.TypeName, COUNT(*) AS Number_Question FROM Question q
-		INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
-		GROUP BY TypeID
-		HAVING COUNT(*) = (SELECT MAX(Max_Type_Question) FROM cte_Max_Type_Question);
+		SELECT tq.TypeID, tq.TypeName, q.Content, q.CreateDate FROM TypeQuestion tq
+        INNER JOIN Question q ON tq.TypeID = q.TypeID
+        WHERE CreateDate = in_Date_Create_Question;
 	END$$
 DELIMITER ;
-
-CALL sp_Max_Type_Question;
+SET @v_NumberOfQuestion = '';
+CALL sp_Date_Create_Question('2025-11-28 23:42:23',@v_NumberOfQuestion);
 
 
 
