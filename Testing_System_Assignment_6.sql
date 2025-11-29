@@ -306,12 +306,19 @@ CREATE PROCEDURE sp_Date_Create_Question(IN in_Date_Create_Question DATETIME, OU
 		SELECT tq.TypeID, tq.TypeName, q.Content, q.CreateDate FROM TypeQuestion tq
         INNER JOIN Question q ON tq.TypeID = q.TypeID
         WHERE CreateDate = in_Date_Create_Question;
+        SELECT tq.TypeID, tq.TypeName, q.CreateDate, COUNT(*) AS out_NumberOfQuestion FROM TypeQuestion tq
+		INNER JOIN Question q ON tq.TypeID = q.TypeID
+		GROUP BY TypeID
+		HAVING CreateDate = out_NumberOfQuestion;
 	END$$
 DELIMITER ;
 SET @v_NumberOfQuestion = '';
 CALL sp_Date_Create_Question('2025-11-28 23:42:23',@v_NumberOfQuestion);
 
-
+SELECT tq.TypeID, tq.TypeName, q.CreateDate, COUNT(*)  FROM TypeQuestion tq
+INNER JOIN Question q ON tq.TypeID = q.TypeID
+GROUP BY TypeID
+HAVING CreateDate = '2025-11-28 23:42:23';
 
 
 
