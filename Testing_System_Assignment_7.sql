@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS Testing_System_Assignment_6;
+DROP DATABASE IF EXISTS Testing_System_Assignment_7;
 
-CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_6;
+CREATE DATABASE IF NOT EXISTS Testing_System_Assignment_7;
 
-USE Testing_System_Assignment_6;
+USE Testing_System_Assignment_7;
 
 -- Table 1:Department 
 DROP TABLE IF EXISTS Department;
@@ -238,155 +238,20 @@ VALUES 					(	1	,		5		),
 						(	8	,		10		), 
 						(	9	,		9		), 
 						(	10	,		8		); 
-
--- Câu 1: Tạo store để người dùng nhập vào tên phòng ban và in ra tất cả các
--- account thuộc phòng ban đó
-SELECT * FROM `Account`;
-SELECT * FROM Department;
-
-DROP PROCEDURE IF EXISTS sp_InsertAccount;
-DELIMITER $$
-CREATE PROCEDURE sp_InsertAccount(IN in_DepartmentID TINYINT) 
-	BEGIN
-		SELECT a.*, d.DepartmentName FROM `Account` a
-        INNER JOIN Department d ON a.DepartmentID = d.DepartmentID
-        WHERE d.DepartmentID = in_DepartmentID;
-	END$$
-DELIMITER ;
-CALL sp_InsertAccount (5);
-
--- Câu 2: Tạo store để in ra số lượng account trong mỗi group
-SELECT * FROM `Account`;
-SELECT * FROM GroupAccount;
-
-DROP PROCEDURE IF EXISTS sp_MemberOfGroup;
-DELIMITER $$
-CREATE PROCEDURE sp_MemberOfGroup() 
-	BEGIN
-		SELECT ga.GroupID, COUNT(*) AS MemberOfGroup FROM GroupAccount ga
-        INNER JOIN `Account` a ON ga.AccountID = a.AccountID
-        GROUP BY ga.GroupID;
-	END$$
-DELIMITER ;
-
-CALL sp_MemberOfGroup;
-
--- Câu 3: Tạo store để thống kê mỗi type question có bao nhiêu question được tạo trong tháng hiện tại
-SELECT * FROM Question;
-SELECT * FROM TypeQuestion;
-
-DROP PROCEDURE IF EXISTS sp_CreateQuestionInMonth;
-DELIMITER $$
-CREATE PROCEDURE sp_CreateQuestionInMonth() 
-	BEGIN
-		SELECT tq.TypeID, tq.TypeName, q.CreateDate, COUNT(*) FROM TypeQuestion tq
-		INNER JOIN Question q ON tq.TypeID = q.TypeID
-        WHERE month(q.CreateDate) = month(now()) AND year(q.CreateDate) = year(now())
-		GROUP BY TypeID;
-	END$$
-DELIMITER ;
-CALL sp_CreateQuestionInMonth;
-
--- Câu 4: Tạo store để trả ra id của type question có nhiều câu hỏi nhất
-SELECT * FROM TypeQuestion;
-SELECT * FROM Question;
-
-DROP PROCEDURE IF EXISTS sp_Max_Type_Question;
-DELIMITER $$
-CREATE PROCEDURE sp_Max_Type_Question() 
-	BEGIN
-		WITH cte_Max_Type_Question AS (
-			SELECT COUNT(*) AS Max_Type_Question FROM Question GROUP BY TypeID
-		)
-		SELECT q.TypeID, tq.TypeName, COUNT(*) AS Number_Question FROM Question q
-		INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
-		GROUP BY TypeID
-		HAVING COUNT(*) = (SELECT MAX(Max_Type_Question) FROM cte_Max_Type_Question);
-	END$$
-DELIMITER ;
-
-CALL sp_Max_Type_Question;
-
--- Câu 5: Sử dụng store ở question 4 để tìm ra tên của type question
-SELECT * FROM TypeQuestion;
-SELECT * FROM Question;
-
-DROP PROCEDURE IF EXISTS sp_Max_Type_Question;
-DELIMITER $$
-CREATE PROCEDURE sp_Max_Type_Question() 
-	BEGIN
-		WITH cte_Max_Type_Question AS (
-			SELECT COUNT(*) AS Max_Type_Question FROM Question GROUP BY TypeID
-		)
-		SELECT q.TypeID, tq.TypeName, COUNT(*) AS Number_Question FROM Question q
-		INNER JOIN TypeQuestion tq ON q.TypeID = tq.TypeID
-		GROUP BY TypeID
-		HAVING COUNT(*) = (SELECT MAX(Max_Type_Question) FROM cte_Max_Type_Question);
-	END$$
-DELIMITER ;
-
-CALL sp_Max_Type_Question;
-
--- Câu 6: Viết 1 store cho phép người dùng nhập vào 1 chuỗi và trả về group có tên
--- chứa chuỗi của người dùng nhập vào hoặc trả về user có username chứa
--- chuỗi của người dùng nhập vào
+                        
+-- Câu 1: tạo trigger không cho phép người dùng nhập vào Group có ngày tạo trước 1 năm
 SELECT * FROM `Group`;
-SELECT * FROM `Account`;
-
-DROP PROCEDURE IF EXISTS sp_Insert_String_data;
+DROP TRIGGER IF EXISTS Trg_bf_Join_Group;
 DELIMITER $$
-CREATE PROCEDURE sp_Insert_String_data(IN in_string_data VARCHAR(50)) 
-	BEGIN
-		SELECT g.GroupName FROM `group` g WHERE g.GroupName LIKE CONCAT("%",in_string_data,"%")
-		UNION
-		SELECT a.Username FROM `account` a WHERE a.Username LIKE CONCAT("%",in_string_data,"%");
-	END$$
+	CREATE TRIGGER Trg_bf_Join_Group
+	BEFORE INSERT ON `Group`
+    FOR EACH ROW
+    BEGIN
+		DECLARE 
+		IF(OLD.
+    END$$
 DELIMITER ;
-
-CALL sp_Insert_String_data('n');
-
--- Câu 7: Viết 1 store cho phép người dùng nhập vào thông tin fullName, email và
--- trong store sẽ tự động gán:
--- username sẽ giống email nhưng bỏ phần @..mail đi
--- positionID: sẽ có default là developer
--- departmentID: sẽ được cho vào 1 phòng chờ
--- Sau đó in ra kết quả tạo thành công
-SELECT * FROM `Account`;
-
-DROP PROCEDURE IF EXISTS sp_Insert_data;
-DELIMITER $$
-CREATE PROCEDURE sp_Insert_data(IN in_FullName_data VARCHAR(50), IN in_Email_data VARCHAR(50)) 
-	BEGIN
-		DECLARE v_Username VARCHAR(50) DEFAULT SUBSTRING_INDEX(in_Email_data,'@',1);
-		DECLARE v_PositionID VARCHAR(50) DEFAULT 'Developer';
-        DECLARE v_DepartmentID TINYINT UNSIGNED DEFAULT 11;
-        DECLARE v_CreateDate DATETIME DEFAULT NOW();
-        INSERT INTO Department(DepartmentID, DepartmentName)
-        VALUES				  (11, 'WaitingRoom');	
-        INSERT INTO `Account` (Email, Username, FullName, DepartmentID, PositionID, CreateDate)
-        VALUES				  (in_Email_data,v_Username,in_FullName_data,v_DepartmentID,v_PositionID,v_CreateDate); 	 
-	END$$
-DELIMITER ;
-
-CALL sp_Insert_data('Nguyen Thanh Son','nguyenthanhson@gmail.com');
-
--- Câu 8: Viết 1 store cho phép người dùng nhập vào Essay hoặc Multiple-Choice
--- để thống kê câu hỏi essay hoặc multiple-choice nào có content dài nhất
-SELECT * FROM Question;
-SELECT * FROM TypeQuestion;
-
-DROP PROCEDURE IF EXISTS sp_Insert_TypeQuestion;
-DELIMITER $$
-CREATE PROCEDURE sp_Insert_TypeQuestion(IN in_TypeQuestion ENUM('Essay', 'Multiple-Choice')) 
-	BEGIN
-		WITH cte_Length_Content AS (
-			SELECT LENGTH(q.Content) AS Length_Content FROM Question q 	
-        )
-		SELECT tq.TypeID, tq.TypeName, LENGTH(q.Content) FROM TypeQuestion tq
-        INNER JOIN Question q ON tq.TypeID = q.TypeID
-        WHERE LENGTH(q.Content) = (SELECT MAX(Length_Content) FROM cte_Length_Content);
- 	END$$
-DELIMITER ;
+SHOW TRIGGERS;
 
 
 
@@ -396,30 +261,10 @@ DELIMITER ;
 
 
 
--- Mở rộng: Tìm ra TypeQuestion đưa vào 1 ngày nào đó, sau khi có KQ => đầu ra: ID của TypeQuestion và số lượng câu hỏi (out)
-SELECT * FROM TypeQuestion;
-SELECT * FROM Question;
-
-DROP PROCEDURE IF EXISTS sp_Date_Create_Question;
-DELIMITER $$
-CREATE PROCEDURE sp_Date_Create_Question(IN in_Date_Create_Question DATETIME, OUT out_NumberOfQuestion INT) 
-	BEGIN
-		SELECT tq.TypeID, tq.TypeName, q.Content, q.CreateDate FROM TypeQuestion tq
-        INNER JOIN Question q ON tq.TypeID = q.TypeID
-        WHERE CreateDate = in_Date_Create_Question;
-        SELECT tq.TypeID, tq.TypeName, q.CreateDate, COUNT(*) AS out_NumberOfQuestion FROM TypeQuestion tq
-		INNER JOIN Question q ON tq.TypeID = q.TypeID
-		GROUP BY TypeID
-		HAVING CreateDate = out_NumberOfQuestion;
-	END$$
-DELIMITER ;
-SET @v_NumberOfQuestion = '';
-CALL sp_Date_Create_Question('2025-11-28 23:42:23',@v_NumberOfQuestion);
-
-SELECT tq.TypeID, tq.TypeName, q.CreateDate, COUNT(*)  FROM TypeQuestion tq
-INNER JOIN Question q ON tq.TypeID = q.TypeID
-GROUP BY TypeID
-HAVING CreateDate = '2025-11-28 23:42:23';
 
 
 
+
+
+
+                        
