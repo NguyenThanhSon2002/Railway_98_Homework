@@ -388,7 +388,46 @@ CREATE PROCEDURE sp_Insert_TypeQuestion(IN in_TypeQuestion ENUM('Essay', 'Multip
  	END$$
 DELIMITER ;
 
+CALL sp_Insert_TypeQuestion('Essay');
 
+-- Câu 9: Viết 1 store cho phép người dùng xóa exam dựa vào ID
+SELECT * FROM Exam;
+
+DROP PROCEDURE IF EXISTS sp_Delete_Exam;
+DELIMITER $$
+CREATE PROCEDURE sp_Delete_Exam(IN in_Delete_ExamID TINYINT) 
+	BEGIN
+		DELETE FROM Exam 
+        WHERE ExamID = in_Delete_ExamID;
+ 	END$$
+DELIMITER ;
+
+CALL sp_Delete_Exam(1);
+
+-- Câu 10: Tìm ra các exam được tạo từ 3 năm trước và xóa các exam đó đi (sử
+-- dụng store ở câu 9 để xóa)
+-- Sau đó in số lượng record đã remove từ các table liên quan trong khi
+-- removing
+SELECT * FROM Exam;
+DROP TABLE IF EXISTS `log_Dep_Change_Account`;
+CREATE TABLE `log_Dep_Change_Account` (
+	ID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    AccountID TINYINT UNSIGNED,
+    Username VARCHAR(50) NOT NULL,
+    OldDepartmentName VARCHAR(50) NOT NULL,
+    NewDepartmentName VARCHAR(50) NOT NULL,
+    ChangeDate DATETIME DEFAULT NOW()
+);
+DROP PROCEDURE IF EXISTS sp_Delete_Exam;
+DELIMITER $$
+CREATE PROCEDURE sp_Delete_Exam() 
+	BEGIN
+		DELETE FROM Exam e
+        WHERE year(NOW()) - year(e.CreateDate) = 5;
+ 	END$$
+DELIMITER ;
+
+CALL sp_Delete_Exam();
 
 
 
