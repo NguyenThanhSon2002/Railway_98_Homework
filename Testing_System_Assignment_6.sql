@@ -409,15 +409,7 @@ CALL sp_Delete_Exam(1);
 -- Sau đó in số lượng record đã remove từ các table liên quan trong khi
 -- removing
 SELECT * FROM Exam;
-DROP TABLE IF EXISTS `log_Dep_Change_Account`;
-CREATE TABLE `log_Dep_Change_Account` (
-	ID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    AccountID TINYINT UNSIGNED,
-    Username VARCHAR(50) NOT NULL,
-    OldDepartmentName VARCHAR(50) NOT NULL,
-    NewDepartmentName VARCHAR(50) NOT NULL,
-    ChangeDate DATETIME DEFAULT NOW()
-);
+
 DROP PROCEDURE IF EXISTS sp_Delete_Exam;
 DELIMITER $$
 CREATE PROCEDURE sp_Delete_Exam() 
