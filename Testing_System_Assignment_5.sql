@@ -292,7 +292,7 @@ HAVING COUNT(*) = (SELECT MAX(Member_Department) FROM cte_Member_Department);
 SELECT * FROM vw_MAX_Member_Department;
 DROP VIEW vw_MAX_Member_Department;
 
--- Câu 5: Tạo view có chứa tất các các câu hỏi do user họ Nguyễn tạo
+-- Câu 5: Tạo view có chứa tất các các câu hỏi do user họ Nguyễn tạo 
 SELECT * FROM `Account`;
 SELECT * FROM Question;
 

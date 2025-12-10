@@ -70,7 +70,7 @@ DROP TABLE IF EXISTS `Group`;
 CREATE TABLE `Group` (
     GroupID TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     GroupName VARCHAR(50) NOT NULL UNIQUE KEY,
-    CreatorID TINYINT UNSIGNED UNIQUE KEY,
+    CreatorID TINYINT UNSIGNED,
     FOREIGN KEY(CreatorID) 	REFERENCES `Account`(AccountId),
     CreateDate DATETIME NOT NULL DEFAULT NOW()
 );
@@ -239,26 +239,170 @@ VALUES 					(	1	,		5		),
 						(	9	,		9		), 
 						(	10	,		8		); 
                         
--- Câu 1: tạo trigger không cho phép người dùng nhập vào Group có ngày tạo trước 1 năm
+-- Câu 1: tạo trigger không cho phép người dùng nhập vào Group có ngày tạo trước đó 1 năm
 SELECT * FROM `Group`;
-DROP TRIGGER IF EXISTS Trg_bf_Join_Group;
+
+DROP TRIGGER IF EXISTS Trg_bf_Create_Group;
 DELIMITER $$
-	CREATE TRIGGER Trg_bf_Join_Group
+	CREATE TRIGGER Trg_bf_Create_Group
 	BEFORE INSERT ON `Group`
     FOR EACH ROW
     BEGIN
-		DECLARE 
-		IF(OLD.
+		-- trigger không cho phép người dùng nhập vào Group có ngày tạo trước đó 1 năm
+		DECLARE v_Create_Date DATETIME;
+		SET v_Create_Date = DATE_SUB(NOW(), INTERVAL 1 YEAR); -- DATE_SUB: lấy ra khoảng thời gian mà trước hoặc sau tham số thứ nhất một khoảng nào đó, tham số dương là chỉ quá khứ, âm là chỉ tương lai
+        IF (v_Create_Date >= NEW.CreateDate) THEN
+			-- Dừng chương trình
+            SIGNAL SQLSTATE '12345'
+            -- Thông báo 
+            SET MESSAGE_TEXT = 'Cant join group';
+		END IF;
+    END$$
+DELIMITER ;
+SHOW TRIGGERS;
+INSERT INTO `Group` (`GroupID`, `GroupName`, `CreatorID`, `CreateDate`) 
+VALUES 				('11', 'Sale01', '9', '2025-11-29 21:45:03');
+
+
+-- Câu 3: Cấu hình 1 group có nhiều nhất là 5 user
+SELECT * FROM GroupAccount;
+
+DROP TRIGGER IF EXISTS Trg_bf_Insert_GroupAccount;
+DELIMITER $$
+	CREATE TRIGGER Trg_bf_Insert_GroupAccount
+	BEFORE INSERT ON GroupAccount
+    FOR EACH ROW
+    BEGIN
+		-- Đếm số lượng AccountID có trong GroupAccount hiện tại 
+        DECLARE v_count_AccountID SMALLINT DEFAULT 0; 
+        SELECT COUNT(*) INTO v_count_AccountID FROM GroupAccount WHERE GroupID = NEW.GroupID;
+		IF(v_count_AccountID > 5) THEN 
+			-- Dừng chương trình
+            SIGNAL SQLSTATE '12345'
+            -- Thông báo 
+            SET MESSAGE_TEXT = 'Cant add more Account';
+		END IF;
+    END$$
+DELIMITER ;
+SHOW TRIGGERS;
+INSERT INTO GroupAccount (`GroupID`, `AccountID`, `JoinDate`) 
+VALUES 					  ('3', '5', '2025-11-29 21:45:04');
+
+DROP TRIGGER IF EXISTS Trg_bf_Join_GroupAccount;
+
+-- Câu 4: Cấu hình 1 bài thi có nhiều nhất là 10 Question
+SELECT * FROM ExamQuestion;
+
+DROP TRIGGER IF EXISTS Trg_bf_Insert_Question;
+DELIMITER $$
+	CREATE TRIGGER Trg_bf_Insert_Question
+	BEFORE INSERT ON ExamQuestion
+    FOR EACH ROW
+    BEGIN
+		-- Đếm số lượng Question có trong ExamQuestion hiện tại 
+        DECLARE v_count_QuestionID SMALLINT DEFAULT 0; 
+        SELECT COUNT(*) INTO v_count_QuestionID FROM ExamQuestion WHERE ExamID = NEW.ExamID;
+		IF(v_count_QuestionID > 3) THEN 
+			-- Dừng chương trình
+            SIGNAL SQLSTATE '12345'
+            -- Thông báo 
+            SET MESSAGE_TEXT = 'Cant add more Question';
+		END IF;
     END$$
 DELIMITER ;
 SHOW TRIGGERS;
 
+INSERT INTO ExamQuestion (`ExamID`, `QuestionID`) 
+VALUES 					 ('3', '3'),
+						 ('3', '5');
+
+INSERT INTO ExamQuestion (`ExamID`, `QuestionID`) 
+VALUES 					 ('3', '6');
+						
+-- Câu 5: Tạo trigger không cho phép người dùng xóa tài khoản có email là
+-- admin@gmail.com (đây là tài khoản admin, không cho phép user xóa),
+-- còn lại các tài khoản khác thì sẽ cho phép xóa và sẽ xóa tất cả các thông
+-- tin liên quan tới user đó
+SELECT * FROM `Account`;
+
+UPDATE `Account` SET Email = 'admin@gmail.com' WHERE AccountID = 10;
+
+DROP TRIGGER IF EXISTS Trg_bf_Delete_Account;
+DELIMITER $$
+	CREATE TRIGGER Trg_bf_Delete_Account
+	BEFORE DELETE ON `Account`
+    FOR EACH ROW
+    BEGIN
+		-- trigger không cho phép người dùng xóa tài khoản có email là admin@gmail.com
+        DECLARE v_Delete_Email VARCHAR(50); 
+        DELETE FROM `Account` WHERE OLD.Email = v_Delete_Email;
+		IF(v_Delete_Email = 'admin@gmail.com') THEN 
+			-- Dừng chương trình
+            SIGNAL SQLSTATE '12345'
+            -- Thông báo 
+            SET MESSAGE_TEXT = 'Cant delete admin email';
+		END IF;
+    END$$
+DELIMITER ;
+SHOW TRIGGERS;
+
+DELETE FROM `Account` WHERE Email = 'admin@gmail.com';
+
+-- Câu 6: Không sử dụng cấu hình default cho field DepartmentID của table
+-- Account, hãy tạo trigger cho phép người dùng khi tạo account không điền
+-- vào departmentID thì sẽ được phân vào phòng ban "waiting Department"
+SELECT * FROM `Account`;
+SELECT * FROM Department;
+-- INSERT INTO Department (DepartmentID,DepartmentName)
+-- VALUES 				   (11, 'waiting Department');
+
+INSERT INTO `Account` (`Email`, `Username`, `FullName`, `PositionID`, `CreateDate`) 
+VALUES 				  ('nguyenthanhson@gmail.com', 'NguyenThanhSon11', 'Nguyen Thanh Son', '3', '2025-12-02 20:43:33');
 
 
+DROP TRIGGER IF EXISTS Trg_bf_Insert_DepartmentID;
+DELIMITER $$
+	CREATE TRIGGER Trg_bf_Insert_DepartmentID
+	BEFORE INSERT ON `Account`
+    FOR EACH ROW
+    BEGIN
+		DECLARE v_DepartmentID TINYINT DEFAULT 0;
+		SELECT DepartmentID INTO v_DepartmentID FROM Department WHERE DepartmentName = 'waiting Department';
+        IF(v_DepartmentID = '0') THEN 
+			-- Dừng chương trình
+            SIGNAL SQLSTATE '12345'
+            -- Thông báo 
+            SET MESSAGE_TEXT = 'waiting Department dosent exist';
+		END IF;
+		IF (NEW.DepartmentID IS NULL) THEN
+		 	SET NEW.DepartmentID = v_DepartmentID;
+		END IF;
+    END$$
+DELIMITER ;
+SHOW TRIGGERS;
 
+-- câu 9: Viết trigger không cho phép người dùng xóa bài thi mới tạo được 2 ngày
+SELECT * FROM Exam;
 
+DROP TRIGGER IF EXISTS Trg_bf_Delete_Exam;
+DELIMITER $$
+	CREATE TRIGGER Trg_bf_Delete_Exam
+	BEFORE DELETE ON Exam
+    FOR EACH ROW
+    BEGIN
+		DECLARE v_Exam_Create_Date DATETIME;
+		SET v_Exam_Create_Date = DATEDIFF(NOW(), OLD.CreateDate);
+		IF (v_Exam_Create_Date <= 2) THEN
+			-- Dừng chương trình
+            SIGNAL SQLSTATE '12345'
+            -- Thông báo 
+            SET MESSAGE_TEXT = 'Cannt delete this exam';
+		END IF;
+    END$$
+DELIMITER ;
+SHOW TRIGGERS;
 
-
+DELETE FROM Exam WHERE CreateDate = '2025-12-02 00:00:00';
 
 
 
