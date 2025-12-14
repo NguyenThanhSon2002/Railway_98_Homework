@@ -187,6 +187,13 @@ public class Program1 {
 		Group[] groups_Account4 = { group4, group5 };
 		account4.groups = groups_Account4;
 
+		// Khai báo một group có bao nhiêu thành viên
+		int group1_member = 2;
+		int group2_member = 2;
+		int group3_member = 2;
+		int group4_member = 2;
+		int group5_member = 1;
+
 		System.out.println("toString(): " + group1.toString());
 		System.out.println("--------------------");
 		System.out.println("toString(): " + group2.toString());
@@ -297,6 +304,47 @@ public class Program1 {
 		// Nếu số lượng account = 2 thì in ra "Nhóm có hai thành viên"
 		// Nếu số lượng account = 3 thì in ra "Nhóm có ba thành viên"
 		// Còn lại in ra "Nhóm có nhiều thành viên"
+
+		/*
+		 * Question 6: Sử dụng switch case để làm lại Question 2
+		 */
+
+		if (account2.groups == null) {
+			System.out.println("Answer2: Nhân viên chưa có group");
+		} else {
+			int total_group_account2_join = account2.groups.length;
+			switch (total_group_account2_join) {
+			case 1:
+				System.out.println("Answer6: Group của nhân viên này là Java Fresher, C# Fresher");
+				break;
+			case 2:
+				System.out.println("Answer6: Group của nhân viên này là Java Fresher, C# Fresher");
+				break;
+			case 3:
+				System.out.println("Answer6: Nhân viên này là người quan trọng, tham gia nhiều group");
+				break;
+			case 4:
+				System.out.println("Answer6: Nhân viên này là người hóng chuyện, tham gia tất cả các group");
+				break;
+			default:
+				System.out.println("Answer6: Nhân viên này là người hóng chuyện, tham gia tất cả các group");
+				break;
+			}
+		}
+
+		/*
+		 * Question 7: Sử dụng switch case để làm lại Question 4
+		 */
+
+		int position_account1 = account1.Position.PositionID;
+		switch (position_account1) {
+		case 1:
+			System.out.println("Answer7: Đây là Developer");
+			break;
+		default:
+			System.out.println("Answer7: Người này không phải là Developer");
+			break;
+		}
 
 	}
 }
