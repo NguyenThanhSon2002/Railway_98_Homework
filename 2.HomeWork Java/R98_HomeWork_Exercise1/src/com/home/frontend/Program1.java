@@ -355,6 +355,7 @@ public class Program1 {
 		// Question 8: In ra thông tin các account bao gồm: Email, FullName và tên phòng
 		// ban của họ
 		Account[] account_array = { account1, account2, account3, account4, account5 };
+
 		/*
 		 * for (Account account_1 : account_array) {
 		 * System.out.println("Answer8: AccountID: " + account_1.AccoutID + " Email: " +
@@ -364,6 +365,7 @@ public class Program1 {
 
 		// Question 9: In ra thông tin các phòng ban bao gồm: id và name
 		Department[] department_array = { department1, department2, department3, department4, department5 };
+
 		/*
 		 * for (Department department_1 : department_array) {
 		 * System.out.println("Answer9: DepartmentID: " + department_1.DepartmentID +
