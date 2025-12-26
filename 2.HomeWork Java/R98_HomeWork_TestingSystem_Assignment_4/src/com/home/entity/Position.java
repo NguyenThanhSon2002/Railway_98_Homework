@@ -11,6 +11,11 @@ public class Position {
 	/*
 	 * public enum Postion_Name { Dev, Test, Scrum_Master, PM }
 	 */
+	public Position() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public String toString() {
 		return "Position [PositionID = " + positionID + ", PositionName = " + positionName + "]";

@@ -25,7 +25,8 @@ public class Account {
 	// Position của User, createDate
 
 	public Account() {
-
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	public Account(int id, String email, String userName, String firstName, String lastName) {

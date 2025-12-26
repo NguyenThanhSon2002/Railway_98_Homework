@@ -20,7 +20,8 @@ public class Group {
 	// username, các thông tin còn lại = null).
 
 	public Group() {
-
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	public Group(int id, String groupName, Account creator, Account[] accounts, LocalDate creaDate) {

@@ -13,7 +13,8 @@ public class Department {
 	// Khởi tạo 1 Object với mỗi constructor ở trên
 
 	public Department() {
-
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	public Department(String nameDepartment) {
